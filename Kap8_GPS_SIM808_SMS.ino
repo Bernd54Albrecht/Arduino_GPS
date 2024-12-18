@@ -6,6 +6,10 @@
   Uhrzeit und Tag werden kurz nach Mitternacht angepasst, jedoch Monat und Jahr nicht.
   Für SMS eigene Mobiltelefonnummer in Zeile 30 eingeben und Zeile 209 entkommentieren
 
+  Achtung: Damit die GPS LEDs leuchten bzw. blinken, muss der Button POWKEY 1 sec gedrückt werden
+  Alternativ kann man bei D9 einen Pin/Stift einlöten, diesen mit dem digitalen Pin 19 (=A5) verbinden. 
+  In den Zeilen 90 bis 93 (void setup()) wird dieser für 1 sec high gesetzt, dann low.
+  
   Anschlüsse:
   TX des GPS verbinden mit A3 = GPIO 17 des LCD Keypad
   RX des GPS verbinden mit A4 = GPIO 18 des LCD Keypad
@@ -55,7 +59,7 @@ LiquidCrystal lcd( pin_RS,  pin_EN,  pin_D4,  pin_D5,  pin_D6,  pin_D7);
 unsigned long previousMillis = 0;
 const long interval = 1000;
 unsigned long previousSMS = 0;
-const long SMSinterval = 300000;     // 3.600.000 msec = 3.600 sec = 60 min
+const long SMSinterval = 1800000;     // 1800000 msec = 1800 sec = 30 min //change as required
 
 // Buttons
 int buttonInput = -1;
@@ -83,6 +87,10 @@ float LONSSs = 0.0;
 void setup() {
   mySerial.begin(9600);
   Serial.begin(9600);
+  pinMode(19,OUTPUT);
+  digitalWrite(19,HIGH);
+  delay(1000);
+  digitalWrite(19,LOW);
   lcd.begin(16,2);         // initialize the lcd 
   lcd.clear(); 
   lcd.setCursor(0,0);     //Zählung beginnt bei Null, erst Zeichen, dann Zeile
@@ -202,8 +210,8 @@ void loop() {
       //******** define phone number and text **********
 
       if (millis()-previousSMS>SMSinterval)  {
-        Serial.print("uncomment for SMS");
-//        sim808.sendSMS(PHONE_NUMBER, MESSAGE); 
+//        Serial.print("uncomment for SMS");
+        sim808.sendSMS(PHONE_NUMBER, MESSAGE); 
         previousSMS = millis();
       } 
       else  {
